@@ -22,11 +22,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class FriendlyWifis extends Activity {
-	private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION =  1;
+	private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
 	private Button addWifi;
 	WifiManager wifi;
 	List<ScanResult> results;
@@ -48,48 +50,45 @@ public class FriendlyWifis extends Activity {
 		addWifi = (Button) findViewById(R.id.button_add);
 		wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 		addWifi.setOnClickListener(new ButtonClickHandler());
-		save=(Button) findViewById(R.id.save);
-		
+		save = (Button) findViewById(R.id.save);
+
 		wifisList = (ListView) findViewById(R.id.friendly_wifis);
-		
-		Intent intent=getIntent();
-		
+
+		Intent intent = getIntent();
+
 		building = intent.getStringExtra("BUILDING_NAME");
-		wifis=db.getFriendlyWifis(building);
+		wifis = db.getFriendlyWifis(building);
 		arrayAdapter = new ArrayAdapter<Router>(this,
 				android.R.layout.simple_list_item_1, wifis);
 		// Set The Adapter
 		wifisList.setAdapter(arrayAdapter);
 		save.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				if(db.addFriendlyWifis(building,wifis))
-				{
-					Toast toast = Toast.makeText(getApplicationContext(),"Saved :)", Toast.LENGTH_SHORT);
+				if (db.addFriendlyWifis(building, wifis)) {
+					Toast toast = Toast.makeText(getApplicationContext(), "Saved :)", Toast.LENGTH_SHORT);
 					toast.show();
 
 				}
 
 
-
-				
 			}
 		});
-		 wifisList.setOnItemLongClickListener(new OnItemLongClickListener() {
+		wifisList.setOnItemLongClickListener(new OnItemLongClickListener() {
 
-		        @Override
-		        public boolean onItemLongClick(AdapterView<?> parent, View view,
-		                int arg2, long arg3) {
-		        	wifis.remove(arg2);
-		        	
-		        	arrayAdapter.notifyDataSetChanged();
-		            return false;
-		        }
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+										   int arg2, long arg3) {
+				wifis.remove(arg2);
 
-		    });
-		 
+				arrayAdapter.notifyDataSetChanged();
+				return false;
+			}
+
+		});
+
 
 	}
 
@@ -103,11 +102,11 @@ public class FriendlyWifis extends Activity {
 
 	public class ButtonClickHandler implements View.OnClickListener {
 		public void onClick(View view) {
-			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 				requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
 						PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
 				//After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
-			}else{
+			} else {
 				getAndShowScanResults();
 			}
 		}
@@ -124,6 +123,9 @@ public class FriendlyWifis extends Activity {
 	}
 
 	private void getAndShowScanResults() {
+		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+			return;
+		}
 		results = wifi.getScanResults();
 		updateOptions();
 		onCreateDialog(0).show();

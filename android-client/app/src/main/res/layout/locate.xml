@@ -1,63 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
- >
+    android:orientation="vertical">
 
-
-    <Button
-        android:id="@+id/locate"
+    <com.example.indoorpositioning.CustomMapImageView
+        android:id="@+id/mapImageView"
         android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:src="@drawable/floor_plan" />
+
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="20px"
-        android:text="Locate"
-        android:layout_marginBottom="100dp"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
+        <TextView
+            android:id="@+id/your_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingBottom="30dp"
+            android:text="Your position"
+            android:textSize="30sp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/result"
-        android:textSize="30dp"
-        android:text=""
-        android:textColor="#ff0000"
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        <TextView
+            android:id="@+id/result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text=""
+            android:textColor="#ff0000"
+            android:textSize="30sp" />
 
+        <Button
+            android:id="@+id/locate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="20px"
+            android:text="Locate" />
 
-    <TextView
+    </LinearLayout>
 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Your position"
-        android:textSize="30dp"
-
-        android:paddingBottom="30dp"
-        android:layout_above="@+id/result"
-        android:layout_centerHorizontal="true" />
-
-
-    <!--<LinearLayout-->
-        <!--android:id="@+id/everythingelse"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="vertical" >-->
-
-      <!---->
-
-        <!--<ScrollView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content" >-->
-
-            <!--<TextView-->
-                <!--android:id="@+id/result"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content" />-->
-        <!--</ScrollView>-->
-    <!--</LinearLayout>-->
-
-</RelativeLayout>
+</LinearLayout>

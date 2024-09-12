@@ -25,12 +25,16 @@ public class Locate extends Activity {
 	TextView result;
 	Button locate;
 
+	CustomMapImageView mapImageView;
+
 	public void onCreate(Bundle saveInstanceState) {
 		super.onCreate(saveInstanceState);
 		setContentView(R.layout.locate);
 		db = new DatabaseHelper(this);
 		buildings = db.getBuildings();
 		locate = (Button) findViewById(R.id.locate);
+
+		mapImageView = findViewById(R.id.mapImageView);
 
 		result = (TextView) findViewById(R.id.result);
         arrayAdapter = new ArrayAdapter<String>(this,
@@ -51,7 +55,7 @@ public class Locate extends Activity {
 		arrayAdapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1, buildings);
 		// Set The Adapter
-        if (buildings.size()==0) {
+        if (buildings.isEmpty()) {
             Toast.makeText(this, "No building data available.", Toast.LENGTH_LONG).show();
             locate.setEnabled(false);
         }
@@ -106,18 +110,19 @@ public class Locate extends Activity {
 				min_distance = distance;
                 j=i;
 				closestPosition = positionsData.get(i).getName();
-
 			}
-
 		}
            if (min_distance == PositionData.MAX_DISTANCE){
                 closestPosition="OUT OF RANGE";
                 Toast.makeText(this,"You are out of range of the selected building",Toast.LENGTH_LONG).show();
-
             }
             result.setText("Nearest point :  "+ closestPosition);
+			float[] coordinates = db.getCoordinatesByPositionId(closestPosition);
+			Log.d("TAG", "coordinates from DB:"+ coordinates[0]+" ,"+ coordinates[1]);
+			mapImageView.setMarkerCoordinates(coordinates);
 
-            //////////////////////////////////////////////////
+
+            /////////////////////////////////////////////////
             min_distance = positionData.uDistance(positionsData.get(0), wifis);
             String closestPosition2 = null;
 

@@ -10,6 +10,7 @@ import java.util.TimerTask;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Context;
+import android.graphics.PointF;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -79,13 +80,14 @@ public class Positions extends Activity {
                 startActivity(intent);
             }
         });
-        textHeading = (TextView) findViewById(R.id.textHeading);
         positionName = (EditText) findViewById(R.id.position_name);
         calibrate = (Button) findViewById(R.id.calibratebutton);
         finish = (Button) findViewById(R.id.finish);
         positionsList = (ListView) findViewById(R.id.positionslist);
         gson = new Gson();
         resultsText = "";
+
+        DrawPointClass mapView = findViewById(R.id.mapImageView);
 
         positionCount = 0;
         positionsData = new ArrayList<PositionData>();
@@ -124,6 +126,11 @@ public class Positions extends Activity {
         calibrate.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                PointF markerPosition = mapView.getMarkerPosition();
+//                Log.d("TAG", markerPosition.toString());
+
+//                float[] arr = mapView.getCoordinates();
+//                Log.d("TAG", "coordinates: "+arr[0]+" "+arr[1]);
 
                 if(db.getFriendlyWifis(building).isEmpty()) {
                     Context context = getApplicationContext();
@@ -133,6 +140,9 @@ public class Positions extends Activity {
                     toast.show();
                 }
                 else {
+                    float[] arr = mapView.getCoordinates();
+                    Log.d("TAG", "coordinates: "+arr[0]+" "+arr[1]);
+                    db.addCoordinate(building, positionName.getText().toString(),arr[0],arr[1]);
                     Intent intent = new Intent(getApplicationContext(), Scan.class);
                     intent.putExtra("POSITION_NAME", positionName.getText().toString());
                     intent.putExtra("isLearning", isLearning);
@@ -148,22 +158,22 @@ public class Positions extends Activity {
                 Intent intent = new Intent(getApplicationContext(),
                         Buildings.class);
                 setResult(2, intent);
-                ArrayList<PositionData> buildingReadings = db.getReadings(building);
-                ArrayList<Router> friendlyWifis = db.getFriendlyWifis(building);
-                String buildingReadingsJson = gson.toJson(buildingReadings);
-                String friendlyWifisJson = gson.toJson(friendlyWifis);
-                JSONObject json = new JSONObject();
-                try {
-                    json.accumulate("building_id", building);
-                    json.accumulate("readings", new JSONArray(buildingReadingsJson));
-                    json.accumulate("friendly_wifis", new JSONArray(friendlyWifisJson));
+//                ArrayList<PositionData> buildingReadings = db.getReadings(building);
+//                ArrayList<Router> friendlyWifis = db.getFriendlyWifis(building);
+//                String buildingReadingsJson = gson.toJson(buildingReadings);
+//                String friendlyWifisJson = gson.toJson(friendlyWifis);
+//                JSONObject json = new JSONObject();
+//                try {
+//                    json.accumulate("building_id", building);
+//                    json.accumulate("readings", new JSONArray(buildingReadingsJson));
+//                    json.accumulate("friendly_wifis", new JSONArray(friendlyWifisJson));
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                new Submit(getApplicationContext()).execute(json.toString());
+//                new Submit(getApplicationContext()).execute(json.toString());
                 finish();
-
             }
         });
         positionsList

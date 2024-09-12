@@ -25,36 +25,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public static final String DATABASE_NAME = "wifips.db";
 	public static final String AP_TABLE = "access_points";
 	public static final String READINGS_TABLE = "readings";
+
+	public static final String COORDINATE_TABLE = "coordinates";
+
 	public static final String AP_CREATE = "CREATE TABLE 'access_points' "
 			+ "('building_id' TEXT NOT NULL ,'ssid' TEXT NOT NULL,'mac_id' TEXT NOT NULL )";
 	public static final String READINGS_CREATE = "CREATE TABLE 'readings' ('building_id' TEXT NOT NULL , "
 			+ "'position_id' TEXT NOT NULL ,"
 			+ " 'ssid' TEXT NOT NULL , 'mac_id' TEXT NOT NULL , 'rssi' INTEGER NOT NULL )";
 
+	public static final String COORDINATE_CREATE = "CREATE TABLE 'coordinates' ('building_id' TEXT NOT NULL , "
+			+ "'position_id' TEXT NOT NULL ,"
+			+ " 'x_coordinate' TEXT NOT NULL , 'y_coordinate' TEXT NOT NULL )";
+
 	private HashMap hp;
 
 	public DatabaseHelper(Context context) {
-		super(context, DATABASE_NAME, null, 1);
+		super(context, DATABASE_NAME, null, 4);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		// TODO Auto-generated method stub
+
 		db.execSQL(AP_CREATE);
 		db.execSQL(READINGS_CREATE);
+		db.execSQL(COORDINATE_CREATE);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// TODO Auto-generated method stub
-		db.execSQL("DROP TABLE IF EXISTS " + AP_CREATE);
-		db.execSQL("DROP TABLE IF EXISTS " + READINGS_CREATE);
+
+		db.execSQL("DROP TABLE IF EXISTS " + AP_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS " + READINGS_TABLE);
+		db.execSQL("DROP TABLE IF EXISTS " + COORDINATE_TABLE);
+
 		onCreate(db);
 	}
 
 	public int deleteReading(String building_id, String position_id) {
 		SQLiteDatabase db = getWritableDatabase();
 		String[] args = new String[] { building_id, position_id };
+//		db.delete(COORDINATE_TABLE, "building_id=? and position_id=?",
+//				args);
 		return db.delete(READINGS_TABLE, "building_id=? and position_id=?",
 				args);
 
@@ -66,6 +78,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		String[] args = new String[] { building_id };
 		db.delete(AP_TABLE,"building_id=?",args);
 		db.delete(READINGS_TABLE, "building_id=?", args);
+//		db.delete(COORDINATE_TABLE, "building_id=?", args);
 		return true;
 
 	}
@@ -154,6 +167,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	}
 
+	public boolean addCoordinate(String building_id, String position_id, Float x, Float y) {
+		Log.v("Want to save : ", x.toString()+", "+ y);
+		SQLiteDatabase db = getWritableDatabase();
+			ContentValues cv = new ContentValues();
+			cv.put("building_id", building_id);
+			cv.put("position_id", position_id);
+			cv.put("x_coordinate",x);
+			cv.put("y_coordinate",y);
+			db.insert(COORDINATE_TABLE, null, cv);
+
+		System.out.println("Adding done");
+		return true;
+	}
+
+
+	public float[] getCoordinatesByPositionId(String position_id) {
+		SQLiteDatabase db = getReadableDatabase();
+		String[] columns = {"x_coordinate", "y_coordinate"};
+		String selection = "position_id = ?";
+		String[] selectionArgs = {position_id};
+
+		Cursor cursor = db.query(COORDINATE_TABLE, columns, selection, selectionArgs, null, null, null);
+		float[] coordinates = new float[2];
+
+		if (cursor.moveToFirst()) {
+			coordinates[0] = cursor.getFloat(cursor.getColumnIndexOrThrow("x_coordinate"));
+			coordinates[1] = cursor.getFloat(cursor.getColumnIndexOrThrow("y_coordinate"));
+		}
+
+		cursor.close();
+		return coordinates;
+	}
+
     public boolean updateDatabase(JSONArray buildings) throws JSONException {
         Gson gson=new Gson();
 
@@ -183,12 +229,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } catch (JSONException e) {
                 return false;
             }
-
-
-
         }
         return true;
-
     }
 
 
